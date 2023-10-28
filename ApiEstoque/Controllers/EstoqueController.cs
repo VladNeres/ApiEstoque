@@ -87,7 +87,7 @@ public class EstoqueController : Controller
     [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(MensagemBase<ProdutoViewModel>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(MensagemBase<ProdutoViewModel>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(MensagemBase<ProdutoViewModel>))]
-    public async Task<IActionResult> AtualizarParcial(ProdutoRequestViewModel produto)
+    public async Task<IActionResult> AtualizarParcial([FromBody] ProdutoRequestViewModel produto)
     {
         var response = await _estoqueService.AtualizarProdutoNome(produto.CodigoDoProduto, produto.Nome);
         if(response ==null) return BadRequest();

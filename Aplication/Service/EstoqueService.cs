@@ -89,7 +89,7 @@ namespace Aplication.Service
 
         }
 
-        public async Task<MensagemBase<ProdutoRequestViewModel>>AtualizarProdutoNome(string codigoDoPedido, string nome)
+        public async Task<MensagemBase<ProdutoRequestViewModel>>AtualizarProdutoNome( string codigoDoPedido, string nome)
         {
             var produtoExiste = await _estoqueRepository.VerificaSeExiste(nome, codigoDoPedido);
             

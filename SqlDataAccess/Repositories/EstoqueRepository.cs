@@ -100,15 +100,14 @@ namespace SqlDataAccess.Repositories
             return await ExecuteAsync(query,param,commandType: CommandType.Text);
         }
 
-        public async Task<int> AtualizarProdutoNome(string codigoDoProduto, string nome)
+        public async Task<int> AtualizarProdutoNome( string codigoDoProduto, string nome)
         {
             DynamicParameters param = new DynamicParameters();
             param.Add("@Codigo", codigoDoProduto, DbType.String);
             param.Add("@Nome", nome, DbType.AnsiString);
-
             string query = @"UPDATE Estoque 
-                             SET Nome = @Nome
-                            WHERE CodigoDoProduto = @Codigo ";
+                             SET ProdutoNome = @Nome
+                            WHERE CodigoDoProduto = @Codigo";
 
             return await ExecuteAsync(query, param, commandType: CommandType.Text);
         }
