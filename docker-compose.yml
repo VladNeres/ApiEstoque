@@ -1,0 +1,42 @@
+version: '3.9'
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "Teste@Teste123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - compose-bridge
+    volumes:
+      - sqlserverdb:/var/opt/mssql
+  
+  apiprodutos:
+    build: "./apiprodutos"
+    image: apiprodutos:1.0
+    container_name: produtosapi
+    networks:
+      - compose-bridge
+    ports: 
+      - 5274:80
+    depends_on:
+      - sqlserver
+  
+  apiestoque:
+    image: apiestoque:1.0
+    container_name: apiestoque
+    networks:
+      - compose-bridge
+    ports: 
+      - 5021:80
+    depends_on:
+      - sqlserver
+      
+networks:
+  compose-bridge:
+    driver: bridge
+
+volumes:
+  sqlserverdb:

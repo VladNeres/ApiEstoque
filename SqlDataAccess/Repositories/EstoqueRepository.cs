@@ -34,11 +34,11 @@ namespace SqlDataAccess.Repositories
                           Count(*)
                            From Produtos
 
-                         SELECT 
+                         SELECT     ID,
                                     NOME,
                                     VALOR,
                                     STATUS,
-                                    DATACRIACAO,
+                                    DATACriacao,
                                     DATAALTERACAO,
                                     CategoriaID,
                                     CodigoDoProduto
