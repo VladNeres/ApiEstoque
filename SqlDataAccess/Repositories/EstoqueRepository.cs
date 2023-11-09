@@ -30,19 +30,13 @@ namespace SqlDataAccess.Repositories
             param.Add("@Take", take, DbType.Int32);
             
 
-            var query = @"Select
-                          Count(*)
-                           From Produtos
+            var query = @"     SELECT
+                               COUNT(*)
+                               FROM Produtos
 
-                         SELECT     ID,
-                                    NOME,
-                                    VALOR,
-                                    STATUS,
-                                    DATACriacao,
-                                    DATAALTERACAO,
-                                    CategoriaID,
-                                    CodigoDoProduto
-                              FROM Produtos
+                               SELECT     p.ID,p.NOME,p.VALOR,p.STATUS,E.DATAEntrada,E.DATASaida,CategoriaID,P.CodigoDoProduto,e.Quantidade as QuantidadeEmEstoque
+                               FROM Produtos as P
+                               JOIN Estoque as  e on e.Produto_ID = P.id
                                ORDER BY ID
                                OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only";
             if(skip == 0 && take == 0) 
