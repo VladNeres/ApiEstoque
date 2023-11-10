@@ -96,7 +96,7 @@ namespace Aplication.Service
             if(produtoExiste == null)
                 return new MensagemBase<ProdutoRequestViewModel>() { Mensagem = "Ops esse produto não foi encontrado", StatusCodes = StatusCodes.Status400BadRequest };
 
-            if (produtoExiste.Nome.ToLower() == nome.ToLower())
+            if (produtoExiste.ProdutoNome.ToLower() == nome.ToLower())
                 return new MensagemBase<ProdutoRequestViewModel>() { Mensagem = "Ops esse nome de produto já é existente em nossa base",  StatusCodes = StatusCodes.Status422UnprocessableEntity};
             
 

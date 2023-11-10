@@ -32,16 +32,15 @@ namespace SqlDataAccess.Repositories
 
             var query = @"     SELECT
                                COUNT(*)
-                               FROM Produtos
+                               FROM Estoque
 
-                               SELECT     p.ID,p.NOME,p.VALOR,p.STATUS,E.DATAEntrada,E.DATASaida,CategoriaID,P.CodigoDoProduto,e.Quantidade as QuantidadeEmEstoque
-                               FROM Produtos as P
-                               JOIN Estoque as  e on e.Produto_ID = P.id
-                               ORDER BY ID
+                               SELECT Produto_ID,ProdutoNOME,DATAEntrada,DATASaida,Codigo_Produto,Quantidade 
+                               FROM Estoque 
+                               ORDER BY Produto_ID
                                OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only";
             if(skip == 0 && take == 0) 
             {
-                query = query.Replace(" ORDER BY ID\r\n                               OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only", " ");
+                query = query.Replace(" ORDER BY Produto_ID\r\n                               OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only", " ");
             }
 
             return await MultipleQueryAsync<Paginacao<List<Produto>>>(query, async (GridReader reader) => 
@@ -61,9 +60,9 @@ namespace SqlDataAccess.Repositories
             param.Add("@CodigoDoProduto", codigo, DbType.AnsiString);
 
             string query = @"Select 
-                                  Nome,Valor, Status,DataCriacao,DataAlteracao,QuantidadeEmEstoque,CategoriaID
-                             From Produtos
-                             WHERE CodigoDoProduto = @CodigoDoProduto";
+                                   Produto_ID,ProdutoNOME,DATAEntrada,DATASaida,Codigo_Produto,Quantidade 
+                               FROM Estoque 
+                             WHERE Codigo_Produto = @Codigo_Produto";
             return await QueryFirstOrDefaultAsync<Produto>(query, param, CommandType.Text);
         }
 
@@ -73,7 +72,7 @@ namespace SqlDataAccess.Repositories
             param.Add("@Nome", nome, DbType.AnsiString);
             param.Add("@Codigo", codigo, DbType.AnsiString);
 
-            string query = @"SELECT NOME, CodigoDoProduto
+            string query = @"SELECT ProdutoNOME, CodigoDoProduto
                             FROM Produtos 
                             WHERE NOME = @Nome OR CodigoDoProduto = @Codigo";
 
@@ -88,8 +87,8 @@ namespace SqlDataAccess.Repositories
             param.Add("@Quantidade", reabastecer, DbType.Int32);
 
             string query = @"UPDATE Produtos 
-                             SET QuantidadeEmEstoque = QuantidadeEmEstoque + @Quantidade 
-                            WHERE CodigoDoProduto = @Codigo OR Nome = @Nome";
+                             SET Quantidade = Quantidade + @Quantidade 
+                            WHERE Codigo_Produto = @Codigo OR Nome = @Nome";
 
             return await ExecuteAsync(query,param,commandType: CommandType.Text);
         }
@@ -101,7 +100,7 @@ namespace SqlDataAccess.Repositories
             param.Add("@Nome", nome, DbType.AnsiString);
             string query = @"UPDATE Estoque 
                              SET ProdutoNome = @Nome
-                            WHERE CodigoDoProduto = @Codigo";
+                            WHERE Codigo_Produto = @Codigo";
 
             return await ExecuteAsync(query, param, commandType: CommandType.Text);
         }

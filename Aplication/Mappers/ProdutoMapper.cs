@@ -1,10 +1,6 @@
 ﻿using Aplication.ViewModels;
 using Domain.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Aplication.Mappers
 {
@@ -14,11 +10,9 @@ namespace Aplication.Mappers
         public static ProdutoViewModel ParaViewModel(Produto produto) =>
             new ProdutoViewModel()
             {
-                CategoriaId = produto.CategoriaId,
-                Nome = produto.Nome,
-                QuantidadeEmEstoque = produto.QuantidadeEmEstoque,
-                Status = produto.Status,
-                CodigoDoProduto = produto.CodigoDoProduto,
+                Nome = produto.ProdutoNome,                 
+                Quantidade = produto.Quantidade,
+                Codigo_Produto = produto.Codigo_Produto,
                 DataEntrada = produto.DataEntrada,
                 DataSaida = produto.DataSaida
             };
@@ -26,11 +20,9 @@ namespace Aplication.Mappers
         public static Produto ParaProduto(ProdutoViewModel produto) =>
             new Produto()
             {
-                CategoriaId = produto.CategoriaId,
-                Nome = produto.Nome,
-                QuantidadeEmEstoque = produto.QuantidadeEmEstoque,
-                Status = produto.Status,
-                CodigoDoProduto = produto.CodigoDoProduto,
+                ProdutoNome = produto.Nome,
+                Quantidade = produto.Quantidade,
+                Codigo_Produto = produto.Codigo_Produto,
                 DataEntrada = produto.DataEntrada,
                 DataSaida = produto.DataSaida
             };
