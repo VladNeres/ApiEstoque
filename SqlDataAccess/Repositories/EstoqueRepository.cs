@@ -66,15 +66,15 @@ namespace SqlDataAccess.Repositories
             return await QueryFirstOrDefaultAsync<Produto>(query, param, CommandType.Text);
         }
 
-        public async Task<Produto> VerificaSeExiste(string nome, string codigo)
+        public async Task<Produto> VerificaSeExiste(string? nome, string? codigo)
         {
             DynamicParameters param = new DynamicParameters();
             param.Add("@Nome", nome, DbType.AnsiString);
             param.Add("@Codigo", codigo, DbType.AnsiString);
 
-            string query = @"SELECT ProdutoNOME, CodigoDoProduto
-                            FROM Produtos 
-                            WHERE NOME = @Nome OR CodigoDoProduto = @Codigo";
+            string query = @"SELECT ProdutoNome, Codigo_Produto
+                            FROM Estoque
+                            WHERE ProdutoNome = @Nome OR Codigo_Produto = @Codigo";
 
             return await QueryFirstOrDefaultAsync<Produto>(query, param, CommandType.Text);
 
@@ -86,7 +86,7 @@ namespace SqlDataAccess.Repositories
             param.Add("@Nome", nome, DbType.AnsiString);
             param.Add("@Quantidade", reabastecer, DbType.Int32);
 
-            string query = @"UPDATE Produtos 
+            string query = @"UPDATE Estoque
                              SET Quantidade = Quantidade + @Quantidade 
                             WHERE Codigo_Produto = @Codigo OR Nome = @Nome";
 
