@@ -7,7 +7,7 @@ namespace Aplication.ViewModels
         [JsonPropertyName("codigoDoProduto")]
         public string CodigoDoProduto { get; set; }
         [JsonPropertyName("nome")]
-        public string Nome { get; set; }
+        public string? Nome { get; set; }
         [JsonPropertyName("quantidade_em_estoque")]
         public int QuantidadeEmEstoque { get; set; }
     }

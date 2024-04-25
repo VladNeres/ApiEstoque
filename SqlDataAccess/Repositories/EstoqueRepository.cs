@@ -40,12 +40,12 @@ namespace SqlDataAccess.Repositories
                                OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only";
             if(skip == 0 && take == 0) 
             {
-                query = query.Replace(" ORDER BY Produto_ID\r\n                               OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only", " ");
+                query = query.Replace(" ORDER BY Produto_ID\r\n OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only", " ");
             }
 
-            return await MultipleQueryAsync<Paginacao<List<Produto>>>(query, async (GridReader reader) => 
+            return await MultipleQueryAsync(query, async (GridReader reader) => 
             {
-                int quantidadeTotal = reader.Read<int>().FirstOrDefault();
+                int quantidadeTotal =  reader.Read<int>().FirstOrDefault();
                 List<Produto> produtos = reader.Read<Produto>().ToList();
 
                 return new Paginacao<List<Produto>>(quantidadeTotal, produtos,paginaAtual,quantidadePorPagina);

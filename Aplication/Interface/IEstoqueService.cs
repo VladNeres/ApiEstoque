@@ -11,7 +11,6 @@ namespace Aplication.Interface
         Task<MensagemBase<Paginacao<List<ProdutoViewModel>>>> BuscarProdutos(int paginaAtual, int quantidadePorPagina);
         Task<MensagemBase<ProdutoViewModel>> BuscarProdutoPorCodigo(string codigo);
         Task<MensagemBase<ProdutoRequestViewModel>> AtualizarProdutoNome(string codigoDoPedido, string nome);
-
-
+        Task<MensagemBase<ProdutoRequestViewModel>> AtualizarProduto(string codigoDoProduto);
     }
 }

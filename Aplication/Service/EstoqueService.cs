@@ -122,7 +122,7 @@ namespace Aplication.Service
 
             using (ExcelPackage packge = new ExcelPackage(exitingFile))
             {
-                ExcelWorksheet worksheet= packge.Workbook.Worksheets[PositionID:0];
+                ExcelWorksheet worksheet = packge.Workbook.Worksheets[PositionID:0];
                 int colunaCount = worksheet.Dimension.End.Column;
                 int rowCount = worksheet.Dimension.End.Row;
 
@@ -130,13 +130,18 @@ namespace Aplication.Service
                 {
                     var produto = new ProdutoRequestViewModel();
                     produto.CodigoDoProduto = worksheet.Cells[row, Col:1].Value?.ToString();
-                    produto.Nome = worksheet.Cells?[row, Col: 2].Value?.ToString();
+                    produto.Nome = worksheet.Cells[row, Col: 2].Value?.ToString();
                     produto.QuantidadeEmEstoque = Convert.ToInt32(worksheet.Cells[row, Col: 3].Value);
 
                     response.Add(produto);
                 }
             }
             return response;
+        }
+
+        public Task<MensagemBase<ProdutoRequestViewModel>> AtualizarProduto(string codigoDoProduto)
+        {
+            throw new NotImplementedException();
         }
     }
 }
