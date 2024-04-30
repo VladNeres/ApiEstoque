@@ -34,13 +34,13 @@ namespace SqlDataAccess.Repositories
                                COUNT(*)
                                FROM Estoque
 
-                               SELECT Produto_ID,ProdutoNOME,DATAEntrada,DATASaida,Codigo_Produto,Quantidade 
+                               SELECT ProdutoId,ProdutoNOME,DATAEntrada,DATASaida,CodigoProduto,Quantidade 
                                FROM Estoque 
-                               ORDER BY Produto_ID
+                               ORDER BY ProdutoId
                                OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only";
             if(skip == 0 && take == 0) 
             {
-                query = query.Replace(" ORDER BY Produto_ID\r\n OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only", " ");
+                query = query.Replace("ORDER BY ProdutoId\r\n                               OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only", " ");
             }
 
             return await MultipleQueryAsync(query, async (GridReader reader) => 
@@ -54,53 +54,55 @@ namespace SqlDataAccess.Repositories
            
         }
 
-        public async Task<Produto> BuscarProduto(string codigo)
+        public async Task<Produto> BuscarProduto(Guid? codigo)
         {
             DynamicParameters param = new DynamicParameters();
-            param.Add("@CodigoDoProduto", codigo, DbType.AnsiString);
+            param.Add("@CodigoDoProduto", codigo, DbType.Guid);
 
             string query = @"Select 
-                                   Produto_ID,ProdutoNOME,DATAEntrada,DATASaida,Codigo_Produto,Quantidade 
+                                   ProdutoId,ProdutoNome,DataEntrada,DataSaida,CodigoProduto,Quantidade 
                                FROM Estoque 
-                             WHERE Codigo_Produto = @Codigo_Produto";
+                             WHERE CodigoProduto = @CodigoDoProduto";
             return await QueryFirstOrDefaultAsync<Produto>(query, param, CommandType.Text);
         }
 
-        public async Task<Produto> VerificaSeExiste(string? nome, string? codigo)
+        public async Task<Produto> VerificaSeExiste(string? nome, Guid? codigo)
         {
             DynamicParameters param = new DynamicParameters();
             param.Add("@Nome", nome, DbType.AnsiString);
-            param.Add("@Codigo", codigo, DbType.AnsiString);
+            param.Add("@Codigo", codigo, DbType.Guid);
 
-            string query = @"SELECT ProdutoNome, Codigo_Produto
+            string query = @"SELECT ProdutoNome, CodigoProduto
                             FROM Estoque
-                            WHERE ProdutoNome = @Nome OR Codigo_Produto = @Codigo";
+                            WHERE ProdutoNome = @Nome OR CodigoProduto = @Codigo";
 
             return await QueryFirstOrDefaultAsync<Produto>(query, param, CommandType.Text);
 
         } 
-        public async Task<int> AtualizarEstoque(string codigo,string nome, int reabastecer)
+        public async Task<int> AtualizarEstoque(Guid codigo,string nome, int reabastecer)
         {
             DynamicParameters param = new DynamicParameters();
-            param.Add("@Codigo", codigo, DbType.AnsiString);
+            param.Add("@Codigo", codigo, DbType.Guid);
             param.Add("@Nome", nome, DbType.AnsiString);
             param.Add("@Quantidade", reabastecer, DbType.Int32);
-
+            param.Add("@DataEntrada", DateTime.Now, DbType.DateTime);
+            
             string query = @"UPDATE Estoque
-                             SET Quantidade = Quantidade + @Quantidade 
-                            WHERE Codigo_Produto = @Codigo OR Nome = @Nome";
-
+                             SET Quantidade = Quantidade + @Quantidade,
+                                 DataEntrada = @DataEntrada
+                            WHERE CodigoProduto = @Codigo OR ProdutoNome = @Nome";
+           
             return await ExecuteAsync(query,param,commandType: CommandType.Text);
         }
 
-        public async Task<int> AtualizarProdutoNome( string codigoDoProduto, string nome)
+        public async Task<int> AtualizarProdutoParcial( Guid codigoDoProduto, string nome)
         {
             DynamicParameters param = new DynamicParameters();
-            param.Add("@Codigo", codigoDoProduto, DbType.String);
+            param.Add("@Codigo", codigoDoProduto, DbType.Guid);
             param.Add("@Nome", nome, DbType.AnsiString);
             string query = @"UPDATE Estoque 
                              SET ProdutoNome = @Nome
-                            WHERE Codigo_Produto = @Codigo";
+                            WHERE CodigoProduto = @Codigo";
 
             return await ExecuteAsync(query, param, commandType: CommandType.Text);
         }

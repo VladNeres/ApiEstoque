@@ -6,14 +6,13 @@ namespace ApiEstoque.Controllers;
 
 
 [Route("[controller]")]
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 public sealed class EstoqueController : Controller
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 {
     private readonly IEstoqueService _estoqueService;
-    private EstoqueController(IEstoqueService estoque)
+
+    public EstoqueController(IEstoqueService estoqueService)
     {
-        _estoqueService = estoque;
+        _estoqueService = estoqueService;
     }
 
 
@@ -24,7 +23,6 @@ public sealed class EstoqueController : Controller
     /// <param name="quantidadePorPagina"></param>
     /// <returns></returns>
     [HttpGet]
-    [Route("")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MensagemBase<ProdutoViewModel>))]
     [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(MensagemBase<ProdutoViewModel>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(MensagemBase<ProdutoViewModel>))]
@@ -45,9 +43,9 @@ public sealed class EstoqueController : Controller
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MensagemBase<ProdutoViewModel>))]
     [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(MensagemBase<ProdutoViewModel>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(MensagemBase<ProdutoViewModel>))]
-    public async Task<IActionResult> BuscarProduto(string codigoDoPedido)
+    public async Task<IActionResult> BuscarProduto(Guid codigoDoPedido)
     {
-        var response = await _estoqueService.BuscarProdutoPorCodigo(codigoDoPedido);
+        var response = await _estoqueService.BuscarProduto(codigoDoPedido);
         if (response == null) return NoContent();
         return Ok(response);
     }
@@ -63,8 +61,8 @@ public sealed class EstoqueController : Controller
     public async Task<IActionResult> ReabastecerProduto(ProdutoRequestViewModel produto)
     {
         var response = await _estoqueService.ReabastecerProduto(produto);
-        if (response != null) return BadRequest();
-        return Ok();
+        if (response == null) return BadRequest();
+        return Ok(response.Mensagem);
 
     }
 
@@ -81,7 +79,7 @@ public sealed class EstoqueController : Controller
     {
         try
         {
-            var response = await _estoqueService.InserirProdutosPorCodigo(caminho);
+            var response = await _estoqueService.InserirProdutosPorLista(caminho);
             if (response != null) BadRequest();
             return Ok(response);
 
@@ -101,16 +99,17 @@ public sealed class EstoqueController : Controller
     /// <summary>
     /// Atualiza produto
     /// </summary>
-    /// <param name="codigoDoProduto"></param>
+    /// <param name="produto"></param>
     /// <returns></returns>
     [HttpPut]
-    [Route("/Atualizar/{codigoDoProduto}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(MensagemBase<ProdutoViewModel>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(MensagemBase<ProdutoViewModel>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(MensagemBase<ProdutoViewModel>))]
-    public async Task<IActionResult> AtualizarProduto(string codigoDoProduto)
+    [Route("/Atualizar")]
+    [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(MensagemBase<ProdutoRequestViewModel>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(MensagemBase<ProdutoRequestViewModel>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(MensagemBase<ProdutoRequestViewModel>))]
+    public async Task<IActionResult> AtualizarProduto([FromBody] ProdutoRequestViewModel produto)
     {
-        var response = await _estoqueService.AtualizarProduto(codigoDoProduto);
+        var response = await _estoqueService.AtualizarProduto(produto);
+        if(response == null) return BadRequest();
         return Ok(response);
 
     }
@@ -127,9 +126,7 @@ public sealed class EstoqueController : Controller
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(MensagemBase<ProdutoViewModel>))]
     public async Task<IActionResult> AtualizarParcial([FromBody] ProdutoRequestViewModel produto)
     {
-#pragma warning disable CS8604 // Possible null reference argument.
-        var response = await _estoqueService.AtualizarProdutoNome(produto.CodigoDoProduto, produto.Nome);
-#pragma warning restore CS8604 // Possible null reference argument.
+        var response = await _estoqueService.AtualizarProdutoParcial(produto.CodigoProduto, produto.Nome);
         if (response == null) return BadRequest();
         return Ok(response);
     }

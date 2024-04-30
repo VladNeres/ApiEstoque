@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using SqlDataAccess.Repositories.Interface;
 
 using OfficeOpenXml;
+using Aplication.Mappers;
 
 
 namespace Aplication.Service
@@ -19,7 +20,7 @@ namespace Aplication.Service
             _estoqueRepository = estoqueRepository;
         }
 
-        public async Task<MensagemBase<ProdutoViewModel>> BuscarProdutoPorCodigo(string codigo)
+        public async Task<MensagemBase<ProdutoViewModel>> BuscarProduto(Guid codigo)
         {
            Produto produto = await _estoqueRepository.BuscarProduto(codigo);
             if(produto == null) return new MensagemBase<ProdutoViewModel>() { Mensagem = "Ops algo deu errado, produto não encontrado", StatusCodes = StatusCodes.Status422UnprocessableEntity };
@@ -48,7 +49,7 @@ namespace Aplication.Service
 
         public async Task<MensagemBase<ProdutoRequestViewModel>> ReabastecerProduto(ProdutoRequestViewModel produto)
         {
-            var produtoExiste =  await  _estoqueRepository.VerificaSeExiste(produto.Nome, produto.CodigoDoProduto);
+            var produtoExiste =  await  _estoqueRepository.VerificaSeExiste(produto.Nome, produto.CodigoProduto);
             if (produtoExiste == null)
             {
                 return new MensagemBase<ProdutoRequestViewModel>()
@@ -58,7 +59,7 @@ namespace Aplication.Service
                 };
             }
 
-           var estoqueAtualizado = await _estoqueRepository.AtualizarEstoque(produto.CodigoDoProduto,produto.Nome, produto.QuantidadeEmEstoque);
+           var estoqueAtualizado = await _estoqueRepository.AtualizarEstoque(produto.CodigoProduto,produto.Nome, produto.Quantidade);
             return new MensagemBase<ProdutoRequestViewModel>()
             {
                 Mensagem = "Estoque reabastecido!",
@@ -68,7 +69,7 @@ namespace Aplication.Service
 
         }
 
-        public async Task<List<ProdutoRequestViewModel>> InserirProdutosPorCodigo(string caminho)
+        public async Task<MensagemBase<List<ProdutoRequestViewModel>>> InserirProdutosPorLista(string caminho)
         {
             var produtos = ReadXLs(caminho);
            
@@ -76,20 +77,25 @@ namespace Aplication.Service
             List<ProdutoRequestViewModel> listNaoExist = new List<ProdutoRequestViewModel>(); 
             foreach(var p in produtos)
             {
-              var existe = await _estoqueRepository.VerificaSeExiste(p.Nome,p.CodigoDoProduto);
+              var existe = await _estoqueRepository.VerificaSeExiste(p.Nome,p.CodigoProduto);
                 if(existe != null)
                     listExist.Add(p);
                 else
                     listNaoExist.Add(p);
-                
             }
 
-            listExist.ForEach(x => _estoqueRepository.AtualizarEstoque(x.CodigoDoProduto,x.Nome,x.QuantidadeEmEstoque));
-            return listExist;
+            if(listNaoExist == null || !listNaoExist.Any())
+                return new MensagemBase<List<ProdutoRequestViewModel>>() { Mensagem = $"Um ou mais Codigos invalidos {string.Join(",",listNaoExist)}", StatusCodes = StatusCodes.Status400BadRequest };
+
+            listExist.ForEach(x => _estoqueRepository.AtualizarEstoque(x.CodigoProduto,x.Nome,x.Quantidade));
+            return new MensagemBase<List<ProdutoRequestViewModel>>(){
+                Mensagem = "Lista Atualizada com sucesso",
+                Object = listExist,
+                StatusCodes = StatusCodes.Status200OK};
 
         }
 
-        public async Task<MensagemBase<ProdutoRequestViewModel>>AtualizarProdutoNome( string codigoDoPedido, string nome)
+        public async Task<MensagemBase<ProdutoRequestViewModel>>AtualizarProdutoParcial( Guid codigoDoPedido, string nome)
         {
             var produtoExiste = await _estoqueRepository.VerificaSeExiste(nome, codigoDoPedido);
             
@@ -100,7 +106,7 @@ namespace Aplication.Service
                 return new MensagemBase<ProdutoRequestViewModel>() { Mensagem = "Ops esse nome de produto já é existente em nossa base",  StatusCodes = StatusCodes.Status422UnprocessableEntity};
             
 
-           var response = await _estoqueRepository.AtualizarProdutoNome(codigoDoPedido, nome);
+           var response = await _estoqueRepository.AtualizarProdutoParcial(codigoDoPedido, nome);
             return new MensagemBase<ProdutoRequestViewModel>()
             {
                 Mensagem = "Nome do produto atualizado com sucesso!",
@@ -129,9 +135,9 @@ namespace Aplication.Service
                 for(int row = 2; row<=rowCount; row++)
                 {
                     var produto = new ProdutoRequestViewModel();
-                    produto.CodigoDoProduto = worksheet.Cells[row, Col:1].Value?.ToString();
+                    produto.CodigoProduto = (Guid)worksheet.Cells[row, Col:1].Value;
                     produto.Nome = worksheet.Cells[row, Col: 2].Value?.ToString();
-                    produto.QuantidadeEmEstoque = Convert.ToInt32(worksheet.Cells[row, Col: 3].Value);
+                    produto.Quantidade = Convert.ToInt32(worksheet.Cells[row, Col: 3].Value);
 
                     response.Add(produto);
                 }
@@ -139,9 +145,26 @@ namespace Aplication.Service
             return response;
         }
 
-        public Task<MensagemBase<ProdutoRequestViewModel>> AtualizarProduto(string codigoDoProduto)
+        public async Task<MensagemBase<ProdutoRequestViewModel>> AtualizarProduto(ProdutoRequestViewModel produto)
         {
-            throw new NotImplementedException();
+            if(produto ==null) return new MensagemBase<ProdutoRequestViewModel>(){ Mensagem = "Produto invalido", StatusCodes = StatusCodes.Status400BadRequest};
+
+            Produto retorno = await _estoqueRepository.BuscarProduto(produto.CodigoProduto);
+            if (retorno == null) return new MensagemBase<ProdutoRequestViewModel>()
+            {
+                Mensagem = "Produto inexistente",
+                StatusCodes = StatusCodes.Status400BadRequest
+            };
+
+            var result =  await _estoqueRepository.AtualizarEstoque(produto.CodigoProduto, produto.Nome, produto.Quantidade);
+
+            return new MensagemBase<ProdutoRequestViewModel>()
+            {
+                Mensagem = "Nome do produto atualizado com sucesso!",
+                Object = result,
+                StatusCodes = StatusCodes.Status200OK
+            }; 
+
         }
     }
 }
