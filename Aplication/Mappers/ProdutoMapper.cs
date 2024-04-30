@@ -26,5 +26,14 @@ namespace Aplication.Mappers
                 DataEntrada = produto.DataEntrada,
                 DataSaida = produto.DataSaida
             };
+
+        public static Produto ParaProduto(this ProdutoRequestViewModel produto) =>
+           new Produto()
+           {
+               ProdutoNome = produto?.Nome,
+               Quantidade = produto.Quantidade,
+               CodigoProduto = produto.CodigoProduto,
+              
+           };
     }
 }

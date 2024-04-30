@@ -11,7 +11,6 @@ namespace SqlDataAccess.Repositories.Interface
         Task<Produto> VerificaSeExiste(string? nome, Guid? codigo);
         Task<int> AtualizarEstoque(Guid codigo, string nome, int reabastecer);
         Task<int> AtualizarProdutoParcial( Guid codigoDoProduto, string nome);
-
-
+        Task<int> AtualizarProduto(Guid codigo, string nome, int reabastecer);
     }
 }

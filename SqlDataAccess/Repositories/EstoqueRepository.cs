@@ -88,8 +88,7 @@ namespace SqlDataAccess.Repositories
             param.Add("@DataEntrada", DateTime.Now, DbType.DateTime);
             
             string query = @"UPDATE Estoque
-                             SET Quantidade = Quantidade + @Quantidade,
-                                 DataEntrada = @DataEntrada
+                             SET Quantidade = Quantidade + @Quantidade
                             WHERE CodigoProduto = @Codigo OR ProdutoNome = @Nome";
            
             return await ExecuteAsync(query,param,commandType: CommandType.Text);
@@ -103,6 +102,21 @@ namespace SqlDataAccess.Repositories
             string query = @"UPDATE Estoque 
                              SET ProdutoNome = @Nome
                             WHERE CodigoProduto = @Codigo";
+
+            return await ExecuteAsync(query, param, commandType: CommandType.Text);
+        }
+
+        public async Task<int> AtualizarProduto(Guid codigo, string nome, int reabastecer)
+        {
+            DynamicParameters param = new DynamicParameters();
+            param.Add("@Codigo", codigo, DbType.Guid);
+            param.Add("@Nome", nome, DbType.AnsiString);
+            param.Add("@Quantidade", reabastecer, DbType.Int32);
+            param.Add("@DataEntrada", DateTime.Now, DbType.DateTime);
+
+            string query = @"UPDATE Estoque
+                             SET ProdutoNome = @Nome,Quantidade =  @Quantidade, DataEntrada = @DataEntrada
+                            WHERE CodigoProduto = @Codigo OR ProdutoNome = @Nome";
 
             return await ExecuteAsync(query, param, commandType: CommandType.Text);
         }

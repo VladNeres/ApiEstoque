@@ -29,7 +29,7 @@ public sealed class EstoqueController : Controller
     public async Task<IActionResult> BuscarProdutos(int paginaAtual, int quantidadePorPagina)
     {
         var response = await _estoqueService.BuscarProdutos(paginaAtual, quantidadePorPagina);
-        if (response == null) return NoContent();
+        if (response.StatusCodes != StatusCodes.Status200OK) return NoContent();
         return Ok(response);
     }
 
@@ -46,7 +46,7 @@ public sealed class EstoqueController : Controller
     public async Task<IActionResult> BuscarProduto(Guid codigoDoPedido)
     {
         var response = await _estoqueService.BuscarProduto(codigoDoPedido);
-        if (response == null) return NoContent();
+        if (response.StatusCodes != StatusCodes.Status200OK) return NoContent();
         return Ok(response);
     }
 
@@ -61,7 +61,7 @@ public sealed class EstoqueController : Controller
     public async Task<IActionResult> ReabastecerProduto(ProdutoRequestViewModel produto)
     {
         var response = await _estoqueService.ReabastecerProduto(produto);
-        if (response == null) return BadRequest();
+        if (response.StatusCodes != StatusCodes.Status200OK) return BadRequest(response.Mensagem);
         return Ok(response.Mensagem);
 
     }
@@ -80,7 +80,7 @@ public sealed class EstoqueController : Controller
         try
         {
             var response = await _estoqueService.InserirProdutosPorLista(caminho);
-            if (response != null) BadRequest();
+            if (response != null) BadRequest(response.Mensagem);
             return Ok(response);
 
         }
@@ -109,7 +109,7 @@ public sealed class EstoqueController : Controller
     public async Task<IActionResult> AtualizarProduto([FromBody] ProdutoRequestViewModel produto)
     {
         var response = await _estoqueService.AtualizarProduto(produto);
-        if(response == null) return BadRequest();
+        if(response.StatusCodes != StatusCodes.Status200OK) return BadRequest(response.Mensagem);
         return Ok(response);
 
     }
@@ -127,7 +127,7 @@ public sealed class EstoqueController : Controller
     public async Task<IActionResult> AtualizarParcial([FromBody] ProdutoRequestViewModel produto)
     {
         var response = await _estoqueService.AtualizarProdutoParcial(produto.CodigoProduto, produto.Nome);
-        if (response == null) return BadRequest();
+        if (response.StatusCodes != StatusCodes.Status200OK) return BadRequest(response.Mensagem);
         return Ok(response);
     }
 }
