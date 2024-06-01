@@ -1,19 +1,20 @@
 ﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Aplication.ViewModels
 {
     public class ProdutoViewModel
     {
         
-        [JsonProperty("codigo_do_produto")]
-        public string Codigo_Produto { get; set; }
-        [JsonProperty("nome")]
-        public string Nome { get; set; }
-        [JsonProperty("quantidade_em_estoque")]
-        public int Quantidade { get; set; }
-        [JsonProperty("data_entrada")]
+        [JsonPropertyName("codigo_do_produto")]
+        public Guid CodigoProduto { get; set; }
+        [JsonPropertyName("nome")]
+        public string? Nome { get; set; }
+        [JsonPropertyName("quantidade_em_estoque")]
+        public int  Quantidade { get; set; }
+        [JsonPropertyName("data_entrada")]
         public DateTime DataEntrada { get; set; }
-        [JsonProperty("data_said")]
+        [JsonPropertyName("data_saida")]
         public DateTime DataSaida { get; set; }
         
        

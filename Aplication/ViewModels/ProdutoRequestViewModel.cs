@@ -4,11 +4,8 @@ namespace Aplication.ViewModels
 {
     public class ProdutoRequestViewModel
     {
-        [JsonPropertyName("codigoDoProduto")]
-        public string CodigoDoProduto { get; set; }
-        [JsonPropertyName("nome")]
+        public Guid CodigoProduto { get; set; }
         public string Nome { get; set; }
-        [JsonPropertyName("quantidade_em_estoque")]
-        public int QuantidadeEmEstoque { get; set; }
+        public int Quantidade { get; set; }
     }
 }

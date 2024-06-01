@@ -19,7 +19,7 @@ namespace Aplication.Service
             _estoqueRepository = estoqueRepository;
         }
 
-        public async Task<MensagemBase<ProdutoViewModel>> BuscarProdutoPorCodigo(string codigo)
+        public async Task<MensagemBase<ProdutoViewModel>> BuscarProduto(Guid codigo)
         {
            Produto produto = await _estoqueRepository.BuscarProduto(codigo);
             if(produto == null) return new MensagemBase<ProdutoViewModel>() { Mensagem = "Ops algo deu errado, produto não encontrado", StatusCodes = StatusCodes.Status422UnprocessableEntity };
@@ -48,7 +48,7 @@ namespace Aplication.Service
 
         public async Task<MensagemBase<ProdutoRequestViewModel>> ReabastecerProduto(ProdutoRequestViewModel produto)
         {
-            var produtoExiste =  await  _estoqueRepository.VerificaSeExiste(produto.Nome, produto.CodigoDoProduto);
+            var produtoExiste =  await  _estoqueRepository.VerificaSeExiste(produto.Nome, produto.CodigoProduto);
             if (produtoExiste == null)
             {
                 return new MensagemBase<ProdutoRequestViewModel>()
@@ -58,7 +58,7 @@ namespace Aplication.Service
                 };
             }
 
-           var estoqueAtualizado = await _estoqueRepository.AtualizarEstoque(produto.CodigoDoProduto,produto.Nome, produto.QuantidadeEmEstoque);
+           var estoqueAtualizado = await _estoqueRepository.AtualizarEstoque(produto.CodigoProduto,produto.Nome, produto.Quantidade);
             return new MensagemBase<ProdutoRequestViewModel>()
             {
                 Mensagem = "Estoque reabastecido!",
@@ -68,28 +68,36 @@ namespace Aplication.Service
 
         }
 
-        public async Task<List<ProdutoRequestViewModel>> InserirProdutosPorCodigo(string caminho)
+        public async Task<MensagemBase<List<ProdutoRequestViewModel>>> InserirProdutosPorLista(string caminho)
         {
             var produtos = ReadXLs(caminho);
-           
+
+            if(produtos == null || !produtos.Any())
+                return  new MensagemBase<List<ProdutoRequestViewModel>>() { Mensagem = $"Lista invalida", StatusCodes = StatusCodes.Status400BadRequest };
+
             List<ProdutoRequestViewModel> listExist = new List<ProdutoRequestViewModel>(); 
             List<ProdutoRequestViewModel> listNaoExist = new List<ProdutoRequestViewModel>(); 
             foreach(var p in produtos)
             {
-              var existe = await _estoqueRepository.VerificaSeExiste(p.Nome,p.CodigoDoProduto);
+              var existe = await _estoqueRepository.VerificaSeExiste(p.Nome,p.CodigoProduto);
                 if(existe != null)
                     listExist.Add(p);
                 else
                     listNaoExist.Add(p);
-                
             }
 
-            listExist.ForEach(x => _estoqueRepository.AtualizarEstoque(x.CodigoDoProduto,x.Nome,x.QuantidadeEmEstoque));
-            return listExist;
+            if(listNaoExist == null || !listNaoExist.Any())
+                return new MensagemBase<List<ProdutoRequestViewModel>>() { Mensagem = $"Um ou mais Codigos invalidos {string.Join(",",listNaoExist)}", StatusCodes = StatusCodes.Status400BadRequest };
+
+            listExist.ForEach(x => _estoqueRepository.AtualizarEstoque(x.CodigoProduto,x.Nome,x.Quantidade));
+            return new MensagemBase<List<ProdutoRequestViewModel>>(){
+                Mensagem = "Lista Atualizada com sucesso",
+                Object = listExist,
+                StatusCodes = StatusCodes.Status200OK};
 
         }
 
-        public async Task<MensagemBase<ProdutoRequestViewModel>>AtualizarProdutoNome( string codigoDoPedido, string nome)
+        public async Task<MensagemBase<ProdutoRequestViewModel>>AtualizarProdutoParcial( Guid codigoDoPedido, string nome)
         {
             var produtoExiste = await _estoqueRepository.VerificaSeExiste(nome, codigoDoPedido);
             
@@ -100,7 +108,7 @@ namespace Aplication.Service
                 return new MensagemBase<ProdutoRequestViewModel>() { Mensagem = "Ops esse nome de produto já é existente em nossa base",  StatusCodes = StatusCodes.Status422UnprocessableEntity};
             
 
-           var response = await _estoqueRepository.AtualizarProdutoNome(codigoDoPedido, nome);
+           var response = await _estoqueRepository.AtualizarProdutoParcial(codigoDoPedido, nome);
             return new MensagemBase<ProdutoRequestViewModel>()
             {
                 Mensagem = "Nome do produto atualizado com sucesso!",
@@ -110,33 +118,65 @@ namespace Aplication.Service
 
         }
 
+
+        public async Task<MensagemBase<ProdutoRequestViewModel>> AtualizarProduto(ProdutoRequestViewModel produto)
+        {
+            if(produto ==null) return new MensagemBase<ProdutoRequestViewModel>(){ Mensagem = "Produto invalido", StatusCodes = StatusCodes.Status400BadRequest};
+
+            var produtoExiste = await _estoqueRepository.VerificaSeExiste(produto.Nome, produto.CodigoProduto);
+
+            if (produtoExiste == null)
+                return new MensagemBase<ProdutoRequestViewModel>() { Mensagem = "Ops esse produto não foi encontrado", StatusCodes = StatusCodes.Status400BadRequest };
+
+            if (produtoExiste.ProdutoNome.ToLower() == produto.Nome.ToLower())
+                return new MensagemBase<ProdutoRequestViewModel>() { Mensagem = "Ops esse nome de produto já é existente em nossa base", StatusCodes = StatusCodes.Status422UnprocessableEntity };
+
+            var result =  await _estoqueRepository.AtualizarProduto(produto.CodigoProduto, produto.Nome, produto.Quantidade);
+
+            return new MensagemBase<ProdutoRequestViewModel>()
+            {
+                Mensagem = "Nome do produto atualizado com sucesso!",
+                Object = result,
+                StatusCodes = StatusCodes.Status200OK
+            }; 
+
+        }
         private List<ProdutoRequestViewModel> ReadXLs(string caminho)
         {
-            if (!caminho.Contains(".xlsx"))
-                 throw new ArgumentNullException("Documento inserido, contem um formato invalido");
-            var response = new List<ProdutoRequestViewModel>();
-            
-            FileInfo exitingFile = new FileInfo(fileName: caminho);
-
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            using (ExcelPackage packge = new ExcelPackage(exitingFile))
+            try
             {
-                ExcelWorksheet worksheet= packge.Workbook.Worksheets[PositionID:0];
-                int colunaCount = worksheet.Dimension.End.Column;
-                int rowCount = worksheet.Dimension.End.Row;
+                if (!caminho.Contains(".xlsx"))
+                     throw new ArgumentNullException("Documento inserido, contem um formato invalido");
+                var response = new List<ProdutoRequestViewModel>();
+            
+                FileInfo exitingFile = new FileInfo(fileName: caminho);
 
-                for(int row = 2; row<=rowCount; row++)
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                using (ExcelPackage packge = new ExcelPackage(exitingFile))
                 {
-                    var produto = new ProdutoRequestViewModel();
-                    produto.CodigoDoProduto = worksheet.Cells[row, Col:1].Value?.ToString();
-                    produto.Nome = worksheet.Cells?[row, Col: 2].Value?.ToString();
-                    produto.QuantidadeEmEstoque = Convert.ToInt32(worksheet.Cells[row, Col: 3].Value);
+                    ExcelWorksheet worksheet = packge.Workbook.Worksheets[PositionID:0];
+                    int colunaCount = worksheet.Dimension.End.Column;
+                    int rowCount = worksheet.Dimension.End.Row;
 
-                    response.Add(produto);
+                    for(int row = 2; row<=rowCount; row++)
+                    {
+                        var produto = new ProdutoRequestViewModel();
+                        produto.CodigoProduto = (Guid)worksheet.Cells[row, Col:1].Value;
+                        produto.Nome = worksheet.Cells[row, Col: 2].Value?.ToString();
+                        produto.Quantidade = Convert.ToInt32(worksheet.Cells[row, Col: 3].Value);
+
+                        response.Add(produto);
+                    }
                 }
+                return response;
+
             }
-            return response;
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }
