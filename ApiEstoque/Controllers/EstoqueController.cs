@@ -58,7 +58,7 @@ public sealed class EstoqueController : Controller
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MensagemBase<ProdutoViewModel>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(MensagemBase<ProdutoViewModel>))]
-    public async Task<IActionResult> ReabastecerProduto(ProdutoRequestViewModel produto)
+    public async Task<IActionResult> ReabastecerProduto([FromBody] ProdutoRequestViewModel produto)
     {
         var response = await _estoqueService.ReabastecerProduto(produto);
         if (response.StatusCodes != StatusCodes.Status200OK) return BadRequest(response.Mensagem);
@@ -121,9 +121,9 @@ public sealed class EstoqueController : Controller
     /// <returns></returns>
     [HttpPatch]
     [Route("AtualizarParcial")]
-    [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(MensagemBase<ProdutoViewModel>))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(MensagemBase<ProdutoViewModel>))]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(MensagemBase<ProdutoViewModel>))]
+    [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(MensagemBase<ProdutoRequestViewModel>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(MensagemBase<ProdutoRequestViewModel>))]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(MensagemBase<ProdutoRequestViewModel>))]
     public async Task<IActionResult> AtualizarParcial([FromBody] ProdutoRequestViewModel produto)
     {
         var response = await _estoqueService.AtualizarProdutoParcial(produto.CodigoProduto, produto.Nome);

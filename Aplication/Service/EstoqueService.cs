@@ -71,7 +71,10 @@ namespace Aplication.Service
         public async Task<MensagemBase<List<ProdutoRequestViewModel>>> InserirProdutosPorLista(string caminho)
         {
             var produtos = ReadXLs(caminho);
-           
+
+            if(produtos == null || !produtos.Any())
+                return  new MensagemBase<List<ProdutoRequestViewModel>>() { Mensagem = $"Lista invalida", StatusCodes = StatusCodes.Status400BadRequest };
+
             List<ProdutoRequestViewModel> listExist = new List<ProdutoRequestViewModel>(); 
             List<ProdutoRequestViewModel> listNaoExist = new List<ProdutoRequestViewModel>(); 
             foreach(var p in produtos)
@@ -140,31 +143,40 @@ namespace Aplication.Service
         }
         private List<ProdutoRequestViewModel> ReadXLs(string caminho)
         {
-            if (!caminho.Contains(".xlsx"))
-                 throw new ArgumentNullException("Documento inserido, contem um formato invalido");
-            var response = new List<ProdutoRequestViewModel>();
-            
-            FileInfo exitingFile = new FileInfo(fileName: caminho);
-
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
-            using (ExcelPackage packge = new ExcelPackage(exitingFile))
+            try
             {
-                ExcelWorksheet worksheet = packge.Workbook.Worksheets[PositionID:0];
-                int colunaCount = worksheet.Dimension.End.Column;
-                int rowCount = worksheet.Dimension.End.Row;
+                if (!caminho.Contains(".xlsx"))
+                     throw new ArgumentNullException("Documento inserido, contem um formato invalido");
+                var response = new List<ProdutoRequestViewModel>();
+            
+                FileInfo exitingFile = new FileInfo(fileName: caminho);
 
-                for(int row = 2; row<=rowCount; row++)
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                using (ExcelPackage packge = new ExcelPackage(exitingFile))
                 {
-                    var produto = new ProdutoRequestViewModel();
-                    produto.CodigoProduto = (Guid)worksheet.Cells[row, Col:1].Value;
-                    produto.Nome = worksheet.Cells[row, Col: 2].Value?.ToString();
-                    produto.Quantidade = Convert.ToInt32(worksheet.Cells[row, Col: 3].Value);
+                    ExcelWorksheet worksheet = packge.Workbook.Worksheets[PositionID:0];
+                    int colunaCount = worksheet.Dimension.End.Column;
+                    int rowCount = worksheet.Dimension.End.Row;
 
-                    response.Add(produto);
+                    for(int row = 2; row<=rowCount; row++)
+                    {
+                        var produto = new ProdutoRequestViewModel();
+                        produto.CodigoProduto = (Guid)worksheet.Cells[row, Col:1].Value;
+                        produto.Nome = worksheet.Cells[row, Col: 2].Value?.ToString();
+                        produto.Quantidade = Convert.ToInt32(worksheet.Cells[row, Col: 3].Value);
+
+                        response.Add(produto);
+                    }
                 }
+                return response;
+
             }
-            return response;
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

@@ -34,13 +34,13 @@ namespace SqlDataAccess.Repositories
                                COUNT(*)
                                FROM Estoque
 
-                               SELECT ProdutoId,ProdutoNOME,DATAEntrada,DATASaida,CodigoProduto,Quantidade 
+                               SELECT ProdutoNome,DATAEntrada,DATASaida,CodigoProduto,Quantidade 
                                FROM Estoque 
-                               ORDER BY ProdutoId
+                               ORDER BY ProdutoNome 
                                OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only";
             if(skip == 0 && take == 0) 
             {
-                query = query.Replace("ORDER BY ProdutoId\r\n                               OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only", " ");
+                query = query.Replace("OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only", " ");
             }
 
             return await MultipleQueryAsync(query, async (GridReader reader) => 
@@ -60,7 +60,7 @@ namespace SqlDataAccess.Repositories
             param.Add("@CodigoDoProduto", codigo, DbType.Guid);
 
             string query = @"Select 
-                                   ProdutoId,ProdutoNome,DataEntrada,DataSaida,CodigoProduto,Quantidade 
+                                   ProdutoNome,DataEntrada,DataSaida,CodigoProduto,Quantidade 
                                FROM Estoque 
                              WHERE CodigoProduto = @CodigoDoProduto";
             return await QueryFirstOrDefaultAsync<Produto>(query, param, CommandType.Text);
@@ -82,14 +82,14 @@ namespace SqlDataAccess.Repositories
         public async Task<int> AtualizarEstoque(Guid codigo,string nome, int reabastecer)
         {
             DynamicParameters param = new DynamicParameters();
-            param.Add("@Codigo", codigo, DbType.Guid);
-            param.Add("@Nome", nome, DbType.AnsiString);
+            param.Add("@CodigoProduto", codigo, DbType.Guid);
+            param.Add("@NomeProduto", nome, DbType.AnsiString);
             param.Add("@Quantidade", reabastecer, DbType.Int32);
             param.Add("@DataEntrada", DateTime.Now, DbType.DateTime);
             
             string query = @"UPDATE Estoque
-                             SET Quantidade = Quantidade + @Quantidade
-                            WHERE CodigoProduto = @Codigo OR ProdutoNome = @Nome";
+                             SET Quantidade = Quantidade + @Quantidade 
+                            WHERE CodigoProduto = @CodigoProduto OR ProdutoNome = @NomeProduto";
            
             return await ExecuteAsync(query,param,commandType: CommandType.Text);
         }
