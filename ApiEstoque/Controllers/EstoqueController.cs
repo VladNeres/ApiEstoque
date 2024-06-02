@@ -23,6 +23,7 @@ public sealed class EstoqueController : Controller
     /// <param name="quantidadePorPagina"></param>
     /// <returns></returns>
     [HttpGet]
+    [Route("BuscaPaginada")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MensagemBase<ProdutoViewModel>))]
     [ProducesResponseType(StatusCodes.Status204NoContent, Type = typeof(MensagemBase<ProdutoViewModel>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(MensagemBase<ProdutoViewModel>))]
@@ -56,6 +57,7 @@ public sealed class EstoqueController : Controller
     /// <param name="produto"></param>
     /// <returns></returns>
     [HttpPost]
+    [Route("/Reabastecer")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MensagemBase<ProdutoViewModel>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(MensagemBase<ProdutoViewModel>))]
     public async Task<IActionResult> ReabastecerProduto([FromBody] ProdutoRequestViewModel produto)
