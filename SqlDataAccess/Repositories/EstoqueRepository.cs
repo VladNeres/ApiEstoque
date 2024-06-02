@@ -34,7 +34,7 @@ namespace SqlDataAccess.Repositories
                                COUNT(*)
                                FROM Estoque
 
-                               SELECT ProdutoNome,DATAEntrada,DATASaida,CodigoProduto,Quantidade 
+                               SELECT ProdutoNome,DataEntrada,DataSaida,CodigoProduto,Quantidade 
                                FROM Estoque 
                                ORDER BY ProdutoNome 
                                OFFSET @Skip ROWS FETCH NEXT @Take ROWS Only";
@@ -60,7 +60,7 @@ namespace SqlDataAccess.Repositories
             param.Add("@CodigoDoProduto", codigo, DbType.Guid);
 
             string query = @"Select 
-                                   ProdutoNome,DataEntrada,DataSaida,CodigoProduto,Quantidade 
+                                   CodigoProduto, ProdutoNome,DataEntrada,DataSaida,Quantidade 
                                FROM Estoque 
                              WHERE CodigoProduto = @CodigoDoProduto";
             return await QueryFirstOrDefaultAsync<Produto>(query, param, CommandType.Text);
