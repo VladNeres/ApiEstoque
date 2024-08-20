@@ -6,7 +6,7 @@ namespace Aplication.ViewModels
     public class ProdutoViewModel
     {
         
-        [JsonPropertyName("codigo_do_produto")]
+        [JsonPropertyName("CodigoProduto")]
         public Guid CodigoProduto { get; set; }
         [JsonPropertyName("nome")]
         public string? Nome { get; set; }
