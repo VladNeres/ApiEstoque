@@ -20,7 +20,7 @@ services:
     networks:
       - compose-bridge
     ports: 
-      - 5274:80
+      - 8680:8080
     depends_on:
       - sqlserver
   
@@ -30,7 +30,7 @@ services:
     networks:
       - compose-bridge
     ports: 
-      - 5021:80
+      - 8681:8080
     depends_on:
       - sqlserver
       
