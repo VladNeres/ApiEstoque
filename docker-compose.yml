@@ -1,4 +1,4 @@
-version: '4.0'
+version: '3.8'
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -17,6 +17,7 @@ services:
     build:
       context: .repos/apiprodutos
       dockerfile: dockerfile
+    image: apiprodutos:1.0
     container_name: produtosapi
     networks:
       - compose-bridge
