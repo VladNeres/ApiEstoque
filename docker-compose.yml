@@ -14,8 +14,9 @@ services:
       - sqlserverdb:/var/opt/mssql
   
   apiprodutos:
-    build: "./apiprodutos"
-    image: apiprodutos:1.0
+    build:
+      context: .repos/apiprodutos
+      dockerfile: dockerfile
     container_name: produtosapi
     networks:
       - compose-bridge
@@ -25,6 +26,9 @@ services:
       - sqlserver
   
   apiestoque:
+    build: 
+      context: .  
+      dockerfile: dockerfile
     image: apiestoque:1.0
     container_name: apiestoque
     networks:
