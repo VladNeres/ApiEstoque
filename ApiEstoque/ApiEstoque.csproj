@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Aplication\Aplication.csproj" />
     <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\ServiceBus\ServiceBus.csproj" />
     <ProjectReference Include="..\SqlDataAccess\SqlDataAccess.csproj" />
   </ItemGroup>
 

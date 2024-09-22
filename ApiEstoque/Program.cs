@@ -1,5 +1,8 @@
 ﻿using ApiEstoque.DependenceInjecton;
 using Microsoft.OpenApi.Models;
+using ServiceBus.Base;
+using ServiceBus.Consumers;
+using ServiceBus.Interfaces;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +21,7 @@ builder.Services.AddSwaggerGen(c =>
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
 });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -27,6 +31,8 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwaggerUI();
 }
 
+var consumerFactory = app.Services.GetRequiredService<RabbitConsumerFactory>();
+consumerFactory.InitializeConsumers();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
