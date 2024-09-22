@@ -8,7 +8,7 @@ namespace ServiceBus.Interfaces
 {
     public interface IConsumer<T>
     {
-        void ProcessMessage(T message);
+        Task ProcessMessage(T message);
     }
    
 }

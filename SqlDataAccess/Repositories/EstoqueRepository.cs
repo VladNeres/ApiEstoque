@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Domain.Mensagem;
 using Domain.Model;
+using RabbitMQ.Client;
 using SqlDataAccess.Repositories.Interface;
 using System.Data;
 
@@ -52,6 +53,20 @@ namespace SqlDataAccess.Repositories
             
             },param, CommandType.Text) ;
            
+        }
+
+        public async Task<int> CadastrarProdutoNoEstoque(Produto produto)
+        {
+            DynamicParameters param = new DynamicParameters();
+            param.Add("@CodigoDoProduto", produto.CodigoProduto, DbType.Guid);
+            param.Add("@ProdutoNome", produto.ProdutoNome, DbType.String);
+            param.Add("@Quantidade", produto.Quantidade, DbType.String);
+            param.Add("@DataEntrada", produto.DataEntrada, DbType.DateTime);
+
+            string query = @"INSERT INTO Estoque (CodigoProduto, ProdutoNome, Quantidade, DataEntrada)
+                                VALUES (@CodigoDoProduto,@ProdutoNome,@Quantidade, @DataEntrada)";
+
+            return await ExecuteAsync(query, param, CommandType.Text);
         }
 
         public async Task<Produto> BuscarProduto(Guid? codigo)

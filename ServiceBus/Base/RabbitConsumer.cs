@@ -39,7 +39,6 @@ namespace ServiceBus.Base
 
         public void StartConsuming()
         {
-            _channel.ExchangeDeclare(exchange: _exchange, type: ExchangeType.Direct);
             _channel.QueueDeclare(queue: _queueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
             _channel.QueueBind(queue: _queueName, exchange: _exchange, routingKey: _routingKey);
 

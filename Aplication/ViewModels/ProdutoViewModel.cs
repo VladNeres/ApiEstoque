@@ -8,13 +8,13 @@ namespace Aplication.ViewModels
         
         [JsonPropertyName("CodigoProduto")]
         public Guid CodigoProduto { get; set; }
-        [JsonPropertyName("nome")]
+        [JsonPropertyName("Nome")]
         public string? Nome { get; set; }
-        [JsonPropertyName("quantidade_em_estoque")]
+        [JsonPropertyName("QuantidadeEmEstoque")]
         public int  Quantidade { get; set; }
-        [JsonPropertyName("data_entrada")]
+        [JsonPropertyName("DataEntrada")]
         public DateTime DataEntrada { get; set; }
-        [JsonPropertyName("data_saida")]
+        [JsonPropertyName("DataSaida")]
         public DateTime DataSaida { get; set; }
         
        
