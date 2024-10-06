@@ -32,7 +32,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 }
 
 var consumerFactory = app.Services.GetRequiredService<RabbitConsumerFactory>();
-consumerFactory.InitializeConsumers();
+consumerFactory.StartConsumingAll();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

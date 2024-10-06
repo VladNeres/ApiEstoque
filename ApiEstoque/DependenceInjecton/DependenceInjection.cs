@@ -19,6 +19,7 @@ namespace ApiEstoque.DependenceInjecton
             //Repository
             services.AddScoped<IEstoqueRepository, EstoqueRepository>(e => new EstoqueRepository(configuration["ConnectionStrings:EstoqueConnection"]));
             services.AddScoped<CriarProdutosConsumer>();
+            services.AddScoped<AtualizarProdutosConsumer>();
 
             // Registrar a fábrica
             services.AddSingleton<RabbitConsumerFactory>();

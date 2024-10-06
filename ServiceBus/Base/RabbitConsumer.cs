@@ -15,26 +15,36 @@ namespace ServiceBus.Base
         private readonly string _queueName;
         private readonly string _exchange;
         private readonly string _routingKey;
-        private readonly IConnection _connection;
+        public readonly IConnection _connection;
         private readonly IModel _channel;
         private readonly object _consumerInstance;
 
         public RabbitConsumer(string host, string user, string password, string queueName, string exchange, string routingKey, object consumerInstance)
         {
-            _queueName = queueName;
-            _exchange = exchange;
-            _routingKey = routingKey;
-            _consumerInstance = consumerInstance;
+                _queueName = queueName;
+                _exchange = exchange;
+                _routingKey = routingKey;
+                _consumerInstance = consumerInstance;
 
-            var factory = new ConnectionFactory()
+                var factory = new ConnectionFactory()
+                {
+                    HostName = host,
+                    UserName = user,
+                    Password = password
+                };
+
+            try
             {
-                HostName = host,
-                UserName = user,
-                Password = password
-            };
+                _connection = factory.CreateConnection();
+                _channel = _connection.CreateModel();
 
-            _connection = factory.CreateConnection();
-            _channel = _connection.CreateModel();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Não foi possivel se conectar ao serviço de mensageria");
+                return;
+
+            }
         }
 
         public void StartConsuming()
@@ -48,7 +58,7 @@ namespace ServiceBus.Base
                 var body = ea.Body.ToArray();
                 var message = Encoding.UTF8.GetString(body);
 
-                // Processar a mensagem utilizando reflexão
+                // Invoca o método ProcessMessage da instância consumidora
                 var method = _consumerInstance.GetType().GetMethod("ProcessMessage");
                 method?.Invoke(_consumerInstance, new object[] { message });
 

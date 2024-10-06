@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace ServiceBus.Consumers
 {
-    public class CriarProdutosConsumer : ICriarProdutoConsumer
+    public class AtualizarProdutosConsumer : IAtualizarProdutoConsumer
     {
         private readonly IEstoqueRepository _estoqueRepository;
-        private const string CLASS_NAME = nameof(CriarProdutosConsumer);
+        private const string CLASS_NAME = nameof(AtualizarProdutosConsumer);
 
-        public CriarProdutosConsumer(IEstoqueRepository estoqueRepository)
+        public AtualizarProdutosConsumer(IEstoqueRepository estoqueRepository)
         {
             _estoqueRepository = estoqueRepository;
         }
@@ -52,8 +52,8 @@ namespace ServiceBus.Consumers
                 }
 
 
-                await _estoqueRepository.CadastrarProdutoNoEstoque(produto.ParaProduto());
-                Console.WriteLine($"Produto cadastrado.");
+                await _estoqueRepository.AtualizarProduto(produto.CodigoProduto,produto.Nome, produto.Quantidade);
+                Console.WriteLine($"Produto Atualizado.");
                 return;
 
             }
