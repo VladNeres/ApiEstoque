@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ServiceBus.Interfaces
 {
-    public interface ICriarProdutoConsumer : IConsumer<string>
+    public interface ICriarProdutoConsumer : IConsumer
     {
     }
 }

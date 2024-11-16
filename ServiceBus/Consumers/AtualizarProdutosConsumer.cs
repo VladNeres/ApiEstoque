@@ -23,7 +23,7 @@ namespace ServiceBus.Consumers
             _estoqueRepository = estoqueRepository;
         }
 
-        public async Task ProcessMessage(string message)
+        public async Task ProcessMessageAsync(string message)
         {
             // Lógica de processamento da mensagem para ConsumerA
 

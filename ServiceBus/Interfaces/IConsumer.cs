@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace ServiceBus.Interfaces
 {
-    public interface IConsumer<T>
+    public interface IConsumer
     {
-        Task ProcessMessage(T message);
+        Task ProcessMessageAsync(string message);
     }
-   
 }
