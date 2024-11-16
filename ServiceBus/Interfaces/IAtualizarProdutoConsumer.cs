@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace ServiceBus.Interfaces
 {
-    public interface IConsumer
+    public interface IAtualizarProdutoConsumer : IConsumer
     {
-        Task ProcessMessageAsync(string message);
     }
 }

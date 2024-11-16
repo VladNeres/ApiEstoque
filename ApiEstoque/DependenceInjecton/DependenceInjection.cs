@@ -11,19 +11,17 @@ namespace ApiEstoque.DependenceInjecton
     public static class DependenceInjection
     {
 
-        public static IServiceCollection InjectionDependence(IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddPresentation(this IServiceCollection services, IConfiguration configuration)
         {
-            //Services
+            // Registrar os serviços e consumidores
             services.AddScoped<IEstoqueService, EstoqueService>();
-            
-            //Repository
             services.AddScoped<IEstoqueRepository, EstoqueRepository>(e => new EstoqueRepository(configuration["ConnectionStrings:EstoqueConnection"]));
-            services.AddScoped<CriarProdutosConsumer>();
 
-            // Registrar a fábrica
-            services.AddSingleton<RabbitConsumerFactory>();
-
+           
+           
             return services;
         }
+
+        
     }
 }

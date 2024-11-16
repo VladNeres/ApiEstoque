@@ -1,13 +1,17 @@
 ﻿using ApiEstoque.DependenceInjecton;
 using Microsoft.OpenApi.Models;
+using ServiceBus;
 using ServiceBus.Base;
 using ServiceBus.Consumers;
 using ServiceBus.Interfaces;
 using System.Reflection;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-var dependencias = DependenceInjection.InjectionDependence(builder.Services, builder.Configuration);
+builder.Services
+    .AddPresentation(builder.Configuration)
+    .AddServiceBus(builder.Configuration);
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -22,6 +26,7 @@ builder.Services.AddSwaggerGen(c =>
     c.IncludeXmlComments(xmlPath);
 });
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -31,8 +36,10 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwaggerUI();
 }
 
+
+
 var consumerFactory = app.Services.GetRequiredService<RabbitConsumerFactory>();
-consumerFactory.InitializeConsumers();
+consumerFactory.StartConsumers();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
